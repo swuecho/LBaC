@@ -30,7 +30,6 @@ sub Match($c) {
     }
 }
 
-
 # recognize an alpha character
 sub IsAlpha($c) { $c =~ /[A..Z]/ }
 
@@ -54,7 +53,7 @@ sub GetName {
 sub GetNum {
     if ( IsDigit($look) ) {
         my $num = $look;
-        GetChar; # discard current look and read next
+        GetChar;    # discard current look and read next
         return $num;
     }
     else {
@@ -68,13 +67,12 @@ sub Emit($s) { print $s . $TAB }
 # out put a string with crlf
 sub EmitLn($s) { say $s }
 
-
 #==
 # expression
 #==
 
 sub Term {
-    EmitLn('MOVE #' . GetNum . ',D0');
+    EmitLn( 'MOVE #' . GetNum . ',D0' );
 }
 
 sub Add {
@@ -83,26 +81,34 @@ sub Add {
     EmitLn('ADD D1,D0');
 }
 
-
 sub Subtract {
     Match('-');
     Term();
     EmitLn('SUB D1,D0');
     EmitLn('NEG D0');
 
-
 }
-my %Addop = ( '+' => sub { Add }  ,
-              '-' => sub { Subtract } 
-          );
-sub Expression { 
+my %Addop = (
+    '+' => 1,
+    '-' => 1, 
+);
+
+sub Expression {
     Term();
-    my $addop_subref = $Addop{$look};
-    while ($addop_subref) {
+    while ( $Addop{$look} ) {
         EmitLn('MOVE D0, D1');
-        $addop_subref->(); 
+        if ( $look eq '+' ) {
+            Add;
+        }
+        elsif ( $look eq '-' ) {
+            Subtract;
+        }
+        else {
+            Expected('Addop');
+        }
     }
 }
+
 #===
 # main
 #===
