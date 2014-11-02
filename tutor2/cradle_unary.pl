@@ -135,19 +135,23 @@ sub Term {
     }
 }
 
+sub IsAddop($c) {
+
 my %IsAddop = (
     '+' => 1,
     '-' => 1,
 );
+    return $IsAddop{$c};
+}
 
 sub Expression {
-    if ( $IsAddop{$look} ) {
+    if ( IsAddop($look) ) {
         EmitLn('CLR D0');
     }
     else {
         Term();
     }
-    while ( $IsAddop{$look} ) {
+    while ( IsAddop($look) ) {
         EmitLn('MOVE D0, -(SP)');
         if ( $look eq '+' ) {
             Add;
